@@ -1,55 +1,50 @@
-import './css/styles.css';
 import Notiflix from 'notiflix';
-import debounce from 'lodash.debounce';
-import fetchCountries from './js/fetchCountries';
+import SlimSelect from 'slim-select';
+import { fetchBreeds, fetchCatByBreed } from "./cat-api";
+import 'slim-select/dist/slimselect.css';
+import "../src/css/styles.css";
 
-const input = document.getElementById("search-box");
-const countryList = document.querySelector(".country-list");
-const countryInfo = document.querySelector(".country-info");
-
-const DEBOUNCE_DELAY = 300;
-
-input.addEventListener('input', debounce(oneSearch, DEBOUNCE_DELAY));
-
-function oneSearch(e) {
-    e.preventDefault();
-    const name = e.target.value.trim();
-    fetchCountries(name).then(data => creatMarkup(data));    
+const ref = {
+    selector: document.querySelector('.breed-select'),
+    divCatInfo: document.querySelector('.cat-info'),
+    loader: document.querySelector('.loader'),
+    error: document.querySelector('.error'),
 };
 
-function creatMarkup(data) {
+ref.loader.classList.add('is-hidden');
+ref.error.classList.add('is-hidden');
 
-    if (data.length > 10) {
-        Notiflix.Notify.info('Too many matches found. Please enter a more specific name.');
-        return
-    };
+ref.selector.addEventListener("change", selectBreed);
 
-    if (data.length > 2 || data.length < 10) {
-        const countryItemMarkup = data
-        .map(item => {
-            return `<li class="country__item">
-                <img class="country__flag" src="${item.flags.svg}" alt="Country flag" width="50px" />
-                <p class="country__name">${item.name.official}</p>
-            </li>`;
-            })
-        .join('');
+function selectBreed(event) {
+    const breedId = event.currentTarget.value;
 
-        countryList.innerHTML = countryItemMarkup;
-    };
+    fetchCatByBreed(breedId).then(data => {
+        console.log(data)
+        const { url, breeds } = data[0];
+        ref.divCatInfo.innerHTML = `<div class="box-img"><img src="${url}" alt="${breeds[0].name}" width="400"/></div><div class="box"><h1>${breeds[0].name}</h1><p>${breeds[0].description}</p><p><b>Temperament:</b> ${breeds[0].temperament}</p></div>`
 
-    if (data.length === 1) {
-       const countriItemInfo = data.map(item => {
-            return `<li class="country__item">
-                <img class="country__flag" src="${item.flags.svg}" alt="Country flag" width="50px" />
-                <p class="country__name">${item.name.official}</p>
-                <p><b>Capital: </b>${item.capital}</p>
-                <p><b>Population: </b>${item.population} inhabitants</p>
-                <p><b>Languages: </b>${Object.values(item.languages)}</p>;
-            </li>`;
-            })
-           .join('');
+    }).catch(FetchError);
+};
+
+let catId = [];
+
+fetchBreeds()
+.then(data => {
+    data.map(element => {
+        catId.push({
+            text: element.name,
+            value: element.id
+        });
         
-        countryInfo.innerHTML = countriItemInfo;
-    }
-};
+    });
 
+    new SlimSelect({
+        select: document.querySelector('.breed-select'),
+        data: catId,
+    }); 
+});
+
+function FetchError() {
+   return Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page or select another cat breed!');
+};
