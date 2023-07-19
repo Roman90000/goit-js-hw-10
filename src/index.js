@@ -14,16 +14,24 @@ const ref = {
 ref.loader.classList.add('is-hidden');
 ref.error.classList.add('is-hidden');
 
+
 ref.selector.addEventListener("change", selectBreed);
 
 function selectBreed(event) {
+    ref.divCatInfo.classList.remove("is-hidden");
+    
     const breedId = event.currentTarget.value;
-
+    console.log(breedId)
     fetchCatByBreed(breedId).then(data => {
-        console.log(data)
         const { url, breeds } = data[0];
-        ref.divCatInfo.innerHTML = `<div class="box-img"><img src="${url}" alt="${breeds[0].name}" width="400"/></div><div class="box"><h1>${breeds[0].name}</h1><p>${breeds[0].description}</p><p><b>Temperament:</b> ${breeds[0].temperament}</p></div>`
 
+        ref.divCatInfo.innerHTML = `<div class="container">
+                                        <div class="box-img"><img src="${url}" alt="${breeds[0].name}" width="400"/></div>
+                                        <div class="box"><h1 class="catName">${breeds[0].name}</h1>
+                                        <p class="catDescription">${breeds[0].description}</p>
+                                        <p class="catTemperament"><b>Temperament:</b><br> ${breeds[0].temperament}</p>
+                                        </div>
+                                    </div>`
     }).catch(FetchError);
 };
 
@@ -40,11 +48,15 @@ fetchBreeds()
     });
 
     new SlimSelect({
-        select: document.querySelector('.breed-select'),
+        select: ref.selector,
         data: catId,
     }); 
+    ref.divCatInfo.classList.add('is-hidden');
 });
 
 function FetchError() {
-   return Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page or select another cat breed!');
+
+    ref.error.classList.remove('is-hidden');
+    
+    return Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page or select another cat breed!');
 };

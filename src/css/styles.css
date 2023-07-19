@@ -10,8 +10,43 @@ body {
   background-color: #fafafa;
   color: #212121;
   line-height: 1.5;
+  background-color:gainsboro}
+
+img {
+  border-radius: 20px;
 }
 
 .is-hidden {
 display: none;
+}
+
+.breed-select {
+  width: 400px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.container {
+  display: flex;
+}
+
+.box-img {
+  margin-right: 20px;
+}
+
+.box {
+  max-width: 500px;
+}
+
+.catName {
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
+.catDescription {
+  margin-top: 0px;
+}
+
+.catTemperament {
+  margin: 0px;
 }
